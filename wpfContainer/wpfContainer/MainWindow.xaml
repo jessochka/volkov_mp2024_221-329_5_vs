@@ -1,0 +1,66 @@
+﻿<Window x:Class="wpfContainer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:wpfContainer"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <!--<Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition Height="50px"/>
+        </Grid.RowDefinitions>
+        <Button Grid.Column="1" Grid.Row="0" Content="Кнопка 1"/>
+        <Button Grid.Column="0" Grid.Row="1" Content="Кнопка 2" Grid.ColumnSpan="3"/>
+    </Grid>-->
+    <!--<UniformGrid Columns="4" Rows="3">
+        <Button Content="11"/>
+        <Button Content="22"/>
+        <Button Content="33"/>
+        <Button Content="44"/>
+        <Button Content="55"/>
+    </UniformGrid>-->
+    <!--<Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Button Grid.Column="0" Content="111"/>
+        <GridSplitter Grid.Column="1" Width="5px" HorizontalAlignment="Center"/>
+        <Button Grid.Column="2" Content="222"/>
+    </Grid>-->
+    <!--<StackPanel Orientation="Horizontal">
+        <Button Content="1111"/>
+        <Button Content="1111"/>
+        <Button Content="1111"/>
+        <Button Content="1111"/>
+    </StackPanel>-->
+    <!--<DockPanel>
+        <Button DockPanel.Dock="Top" Content="Top"/>
+        <Button DockPanel.Dock="Left" Content="Left"/>
+        <Button DockPanel.Dock="Bottom" Content="Bottom"/>
+        <Button DockPanel.Dock="Right" Content="Right"/>
+        <Button Content="11"/>
+    </DockPanel>-->
+    <!--<WrapPanel ItemWidth="70" ItemHeight="150">
+        <Button Content="11"/>
+        <Button Content="22"/>
+        <Button Content="33"/>
+        <Button Content="44"/>
+        <Button Content="55"/>
+        <Button Content="66"/>
+    </WrapPanel>-->
+    <Canvas>
+        <Button Content="1111111111111"/>
+        <Button Content="22222222" Canvas.Right="30"/>
+        <Button Content="333" Canvas.Right="100" Canvas.Bottom="30"/>
+    </Canvas>
+</Window>
