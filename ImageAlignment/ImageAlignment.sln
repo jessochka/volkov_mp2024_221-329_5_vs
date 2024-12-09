@@ -5,6 +5,11 @@ VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageAlignmentWFA", "ImageAlignment\ImageAlignmentWFA.csproj", "{6667BCCD-8ABB-4C2D-941B-70EC78B9BBAC}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решения", "Элементы решения", "{C3997AF7-7DD5-4898-9D8B-6470D2A28EF8}"
+	ProjectSection(SolutionItems) = preProject
+		ImageAlignmentLibrary.cs = ImageAlignmentLibrary.cs
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
