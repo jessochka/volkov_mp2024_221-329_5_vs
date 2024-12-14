@@ -1,4 +1,4 @@
-﻿namespace ImageAlignment
+﻿namespace ImageAlignmentWFA
 {
     partial class Form1
     {
@@ -35,102 +35,120 @@
             btnRotate90 = new Button();
             btnRotateMinus90 = new Button();
             btnAutoAlign = new Button();
+            btnLoadImage = new Button();
             pictureBox1 = new PictureBox();
             tbAngle = new TrackBar();
             txtAngle = new TextBox();
-            btnLoadImage = new Button();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)tbAngle).BeginInit();
             SuspendLayout();
-
-            // Label
+            // 
+            // label1
+            // 
             label1.AutoSize = true;
+            label1.Location = new Point(12, 9);
             label1.Name = "label1";
-            label1.Size = new Size(67, 15);
-            label1.TabIndex = 1;
+            label1.Size = new Size(100, 25);
+            label1.TabIndex = 0;
             label1.Text = "Настройки";
-
-            // CheckBoxes
+            // 
+            // chkGuidelines
+            // 
             chkGuidelines.AutoSize = true;
-            chkGuidelines.Location = new Point(12, 67);
+            chkGuidelines.Location = new Point(12, 46);
             chkGuidelines.Name = "chkGuidelines";
-            chkGuidelines.Size = new Size(152, 19);
-            chkGuidelines.TabIndex = 2;
+            chkGuidelines.Size = new Size(221, 29);
+            chkGuidelines.TabIndex = 1;
             chkGuidelines.Text = "Направляющие линии";
             chkGuidelines.UseVisualStyleBackColor = true;
-
+            // 
+            // chkDiagonals
+            // 
             chkDiagonals.AutoSize = true;
-            chkDiagonals.Location = new Point(12, 92);
+            chkDiagonals.Location = new Point(12, 81);
             chkDiagonals.Name = "chkDiagonals";
-            chkDiagonals.Size = new Size(175, 19);
-            chkDiagonals.TabIndex = 3;
+            chkDiagonals.Size = new Size(257, 29);
+            chkDiagonals.TabIndex = 2;
             chkDiagonals.Text = "Направляющие диагонали";
             chkDiagonals.UseVisualStyleBackColor = true;
-
+            // 
+            // chkAutoCrop
+            // 
             chkAutoCrop.AutoSize = true;
-            chkAutoCrop.Location = new Point(12, 117);
+            chkAutoCrop.Location = new Point(12, 116);
             chkAutoCrop.Name = "chkAutoCrop";
-            chkAutoCrop.Size = new Size(132, 19);
-            chkAutoCrop.TabIndex = 4;
+            chkAutoCrop.Size = new Size(199, 29);
+            chkAutoCrop.TabIndex = 3;
             chkAutoCrop.Text = "Автовыравнивание";
             chkAutoCrop.UseVisualStyleBackColor = true;
-
-            // Buttons
-            btnRotate90.Location = new Point(12, 163);
+            // 
+            // btnRotate90
+            // 
+            btnRotate90.Location = new Point(35, 166);
             btnRotate90.Name = "btnRotate90";
-            btnRotate90.Size = new Size(75, 23);
-            btnRotate90.TabIndex = 5;
+            btnRotate90.Size = new Size(176, 34);
+            btnRotate90.TabIndex = 4;
             btnRotate90.Text = "+90";
             btnRotate90.UseVisualStyleBackColor = true;
-
-            btnRotateMinus90.Location = new Point(12, 192);
+            // 
+            // btnRotateMinus90
+            // 
+            btnRotateMinus90.Location = new Point(35, 206);
             btnRotateMinus90.Name = "btnRotateMinus90";
-            btnRotateMinus90.Size = new Size(75, 23);
-            btnRotateMinus90.TabIndex = 6;
+            btnRotateMinus90.Size = new Size(176, 34);
+            btnRotateMinus90.TabIndex = 5;
             btnRotateMinus90.Text = "-90";
             btnRotateMinus90.UseVisualStyleBackColor = true;
-
-            btnAutoAlign.Location = new Point(12, 221);
+            // 
+            // btnAutoAlign
+            // 
+            btnAutoAlign.Location = new Point(35, 246);
             btnAutoAlign.Name = "btnAutoAlign";
-            btnAutoAlign.Size = new Size(75, 23);
-            btnAutoAlign.TabIndex = 7;
+            btnAutoAlign.Size = new Size(176, 34);
+            btnAutoAlign.TabIndex = 6;
             btnAutoAlign.Text = "авто";
             btnAutoAlign.UseVisualStyleBackColor = true;
-
-            btnLoadImage.Location = new Point(12, 250);
+            // 
+            // btnLoadImage
+            // 
+            btnLoadImage.Location = new Point(35, 328);
             btnLoadImage.Name = "btnLoadImage";
-            btnLoadImage.Size = new Size(75, 23);
-            btnLoadImage.TabIndex = 11;
+            btnLoadImage.Size = new Size(176, 34);
+            btnLoadImage.TabIndex = 7;
             btnLoadImage.Text = "Загрузить";
             btnLoadImage.UseVisualStyleBackColor = true;
-
-            // PictureBox
-            pictureBox1.Location = new Point(193, 31);
+            // 
+            // pictureBox1
+            // 
+            pictureBox1.Location = new Point(287, 9);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(595, 327);
+            pictureBox1.Size = new Size(854, 363);
             pictureBox1.TabIndex = 8;
             pictureBox1.TabStop = false;
-
-            // TrackBar
-            tbAngle.Location = new Point(12, 393);
+            // 
+            // tbAngle
+            // 
+            tbAngle.Location = new Point(12, 406);
             tbAngle.Name = "tbAngle";
-            tbAngle.Size = new Size(714, 45);
+            tbAngle.Size = new Size(1016, 69);
             tbAngle.TabIndex = 9;
-
-            // TextBox
-            txtAngle.Location = new Point(732, 393);
+            // 
+            // txtAngle
+            // 
+            txtAngle.Location = new Point(1044, 419);
             txtAngle.Name = "txtAngle";
-            txtAngle.Size = new Size(56, 23);
+            txtAngle.Size = new Size(83, 31);
             txtAngle.TabIndex = 10;
-
+            // 
             // Form1
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            // 
+            AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
-            Controls.Add(btnLoadImage);
+            ClientSize = new Size(1153, 487);
             Controls.Add(txtAngle);
             Controls.Add(tbAngle);
             Controls.Add(pictureBox1);
+            Controls.Add(btnLoadImage);
             Controls.Add(btnAutoAlign);
             Controls.Add(btnRotateMinus90);
             Controls.Add(btnRotate90);
@@ -139,8 +157,8 @@
             Controls.Add(chkGuidelines);
             Controls.Add(label1);
             Name = "Form1";
-            Text = "Автовыравнивание изображения";
-
+            Text = "Form1";
+            Load += Form1_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ((System.ComponentModel.ISupportInitialize)tbAngle).EndInit();
             ResumeLayout(false);

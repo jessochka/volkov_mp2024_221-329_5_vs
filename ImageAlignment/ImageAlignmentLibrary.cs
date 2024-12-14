@@ -13,40 +13,17 @@ namespace ImageAlignment.Library
             AlignedImage = image;
         }
 
-        // Метод для выравнивания по внешнему контуру
-        public void AlignByContour()
+        public Bitmap RotateImage(Bitmap bitmap, float angle)
         {
-            // Логика нахождения угла и выравнивания
-            AlignedImage = RotateImage(OriginalImage, FindAngleByContour());
-        }
-
-        // Метод для выравнивания по содержимому
-        public void AlignByContent()
-        {
-            // Логика нахождения угла и выравнивания
-            AlignedImage = RotateImage(OriginalImage, FindAngleByContent());
-        }
-
-        // Пример метода нахождения угла по внешнему контуру
-        private float FindAngleByContour()
-        {
-            // Логика анализа контура, возвращающая угол
-            return 10.5f; // Пример: угол в градусах
-        }
-
-        // Пример метода нахождения угла по содержимому
-        private float FindAngleByContent()
-        {
-            // Логика анализа содержимого, возвращающая угол
-            return -5.0f; // Пример: угол в градусах
-        }
-
-        // Метод вращения изображения
-        private Bitmap RotateImage(Bitmap bitmap, float angle)
-        {
-            // Логика вращения изображения на указанный угол
-            // Реализация будет использована в будущем
-            return bitmap; // Заглушка
+            Bitmap result = new Bitmap(bitmap.Width, bitmap.Height);
+            using (Graphics g = Graphics.FromImage(result))
+            {
+                g.TranslateTransform(bitmap.Width / 2, bitmap.Height / 2);
+                g.RotateTransform(angle);
+                g.TranslateTransform(-bitmap.Width / 2, -bitmap.Height / 2);
+                g.DrawImage(bitmap, new Point(0, 0));
+            }
+            return result;
         }
     }
 }
