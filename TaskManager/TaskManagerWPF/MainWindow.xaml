@@ -1,0 +1,56 @@
+﻿<Window x:Class="TaskManagerWPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Task Manager (WPF)" Height="500" Width="700">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,0,0,10">
+            <Button x:Name="btnOpenFile" Content="Открыть файл..." Width="120" Margin="0,0,10,0"
+                    Click="btnOpenFile_Click"/>
+            <Button x:Name="btnSaveFile" Content="Сохранить файл..." Width="120" Margin="0,0,10,0"
+                    Click="btnSaveFile_Click"/>
+        </StackPanel>
+
+        <ListBox x:Name="listTasks"
+                 Grid.Row="1"
+                 Grid.Column="1"
+                 SelectionChanged="listTasks_SelectionChanged"
+                 Margin="10,0,0,0"/>
+
+        <StackPanel Grid.Row="1" Grid.Column="0">
+            <TextBlock Text="Заголовок:"/>
+            <TextBox x:Name="txtTitle" Width="200" Margin="0,0,0,5"/>
+
+            <TextBlock Text="Описание:"/>
+            <TextBox x:Name="txtDescription" Width="200" Height="60" TextWrapping="Wrap"/>
+
+            <TextBlock Text="Дедлайн (дд.мм.гггг):" Margin="0,10,0,0"/>
+            <TextBox x:Name="txtDeadline" Width="200"/>
+
+            <WrapPanel Margin="0,10,0,0">
+                <Button x:Name="btnAdd" Content="Добавить" Width="80" 
+                        Click="btnAdd_Click" Margin="0,0,10,0"/>
+                <Button x:Name="btnUpdate" Content="Изменить" Width="80" 
+                        Click="btnUpdate_Click" Margin="0,0,10,0"/>
+            </WrapPanel>
+
+            <WrapPanel Margin="0,10,0,0">
+                <Button x:Name="btnComplete" Content="Выполнено" Width="80"
+                        Click="btnComplete_Click" Margin="0,0,10,0"/>
+                <Button x:Name="btnReopen" Content="Не выполнено" Width="100"
+                        Click="btnReopen_Click" Margin="0,0,10,0"/>
+            </WrapPanel>
+
+            <Button x:Name="btnDelete" Content="Удалить" Width="80" Margin="0,10,0,0"
+                    Click="btnDelete_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
