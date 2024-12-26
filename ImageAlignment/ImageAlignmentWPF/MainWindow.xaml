@@ -1,6 +1,7 @@
 ﻿<Window x:Class="ImageAlignmentWPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:ImageAlignmentWPF"
         Title="Выравнивание (WPF)" Height="700" Width="1200">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -32,6 +33,8 @@
                          Width="50"
                          Text="0"
                          Margin="5,0,0,0"
+                         VerticalContentAlignment="Center"
+                         HorizontalContentAlignment="Center"
                          KeyDown="txtAngle_KeyDown"/>
             </StackPanel>
 
@@ -58,22 +61,43 @@
                       Checked="chkDiagonals_Checked"
                       Unchecked="chkDiagonals_Unchecked"/>
 
+            <!-- Кнопка Автовыравнивания -->
+            <Button x:Name="btnAutoAlign"
+                    Content="Автовыравнивание"
+                    Width="150"
+                    Margin="0,0,0,10"
+                    Click="btnAutoAlign_Click"/>
+
             <Button x:Name="btnSaveImage"
                     Content="Сохранить"
                     Width="150"
                     Margin="0,10,0,0"
                     Click="btnSaveImage_Click"/>
+
+            <!-- Новая кнопка Показать/Скрыть контур -->
+            <Button x:Name="btnToggleContour"
+                    Content="Скрыть контур"
+                    Width="150"
+                    Margin="0,10,0,0"
+                    Click="btnToggleContour_Click"/>
         </StackPanel>
 
         <ScrollViewer Grid.Column="1" Margin="10">
-            <Canvas x:Name="canvasImage" Background="Gray" MouseDown="canvasImage_MouseDown">
-                <Image x:Name="imgDisplay" Stretch="Uniform"/>
-                <!-- Линии для направляющих -->
-                <Line x:Name="lineHorizontal" Stroke="Red" StrokeThickness="2" Visibility="Collapsed"/>
-                <Line x:Name="lineVertical"   Stroke="Red" StrokeThickness="2" Visibility="Collapsed"/>
-                <Line x:Name="lineDiagonal1"  Stroke="Blue" StrokeThickness="2" Visibility="Collapsed"/>
-                <Line x:Name="lineDiagonal2"  Stroke="Blue" StrokeThickness="2" Visibility="Collapsed"/>
-            </Canvas>
+            <Grid>
+                <Canvas x:Name="canvasImage" Background="Gray" MouseDown="canvasImage_MouseDown">
+                    <Image x:Name="imgDisplay" Stretch="Uniform"/>
+                    <!-- Линии для направляющих -->
+                    <Line x:Name="lineHorizontal" Stroke="Red" StrokeThickness="2" Visibility="Collapsed"/>
+                    <Line x:Name="lineVertical" Stroke="Red" StrokeThickness="2" Visibility="Collapsed"/>
+                    <Line x:Name="lineDiagonal1" Stroke="Blue" StrokeThickness="2" Visibility="Collapsed"/>
+                    <Line x:Name="lineDiagonal2" Stroke="Blue" StrokeThickness="2" Visibility="Collapsed"/>
+                    <!-- Элементы для отображения зеленых линий контура -->
+                    <Line x:Name="lineTop" Stroke="Blue" StrokeThickness="2" Visibility="Collapsed"/>
+                    <Line x:Name="lineRight" Stroke="Blue" StrokeThickness="2" Visibility="Collapsed"/>
+                    <Line x:Name="lineBottom" Stroke="Blue" StrokeThickness="2" Visibility="Collapsed"/>
+                    <Line x:Name="lineLeft" Stroke="Blue" StrokeThickness="2" Visibility="Collapsed"/>
+                </Canvas>
+            </Grid>
         </ScrollViewer>
     </Grid>
 </Window>
