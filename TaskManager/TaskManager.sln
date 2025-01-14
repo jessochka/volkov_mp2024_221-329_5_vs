@@ -3,11 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskManagerLibrary", "TaskManagerLibrary\TaskManagerLibrary.csproj", "{3F5F7340-4BC2-4A47-8DFE-5E5328BE5DD2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskManagerLibrary", "TaskManagerLibrary\TaskManagerLibrary.csproj", "{3F5F7340-4BC2-4A47-8DFE-5E5328BE5DD2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskManagerConsole", "TaskManagerConsole\TaskManagerConsole.csproj", "{6B23699F-6DD5-409D-9771-1525B7BE903D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskManagerConsole", "TaskManagerConsole\TaskManagerConsole.csproj", "{6B23699F-6DD5-409D-9771-1525B7BE903D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskManagerWPF", "TaskManagerWPF\TaskManagerWPF.csproj", "{153D43A4-1469-48EB-B20D-7FA9140B4C32}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskManagerWPF", "TaskManagerWPF\TaskManagerWPF.csproj", "{153D43A4-1469-48EB-B20D-7FA9140B4C32}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskManagerMAUI", "..\..\..\..\Desktop\TaskManagerMAUI\TaskManagerMAUI.csproj", "{F1F71695-DD7C-4DC5-9334-29499E48D476}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,11 @@ Global
 		{153D43A4-1469-48EB-B20D-7FA9140B4C32}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{153D43A4-1469-48EB-B20D-7FA9140B4C32}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{153D43A4-1469-48EB-B20D-7FA9140B4C32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1F71695-DD7C-4DC5-9334-29499E48D476}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1F71695-DD7C-4DC5-9334-29499E48D476}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1F71695-DD7C-4DC5-9334-29499E48D476}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{F1F71695-DD7C-4DC5-9334-29499E48D476}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1F71695-DD7C-4DC5-9334-29499E48D476}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

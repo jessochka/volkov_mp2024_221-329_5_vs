@@ -5,24 +5,36 @@ using System.Text.Json;
 
 namespace TaskManagerLibrary
 {
+    public enum ImportanceLevel
+    {
+        High,
+        Medium,
+        Low
+    }
+
     public class TaskItem
     {
         public Guid Id { get; private set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public bool IsCompleted { get; private set; }
+        public string? ImagePath { get; set; } = null;
 
         /// Дедлайн в формате (дд.мм.гггг)
         public DateTime? Deadline { get; private set; }
 
+        /// Важность задачи
+        public ImportanceLevel Importance { get; set; }
+
         // Конструктор для новых задач
-        public TaskItem(string title, string description)
+        public TaskItem(string title, string description, ImportanceLevel importance = ImportanceLevel.Medium)
         {
             Id = Guid.NewGuid();
             Title = title;
             Description = description;
             IsCompleted = false;
             Deadline = null;
+            Importance = importance;
         }
 
         // Пустой конструктор (для JSON-сериализации)
@@ -31,6 +43,7 @@ namespace TaskManagerLibrary
             Id = Guid.NewGuid();
             Title = "";
             Description = "";
+            Importance = ImportanceLevel.Medium;
         }
 
         public void Complete() => IsCompleted = true;
@@ -45,7 +58,7 @@ namespace TaskManagerLibrary
             string dd = Deadline.HasValue
                 ? $" (Deadline: {Deadline.Value:dd.MM.yyyy})"
                 : "";
-            return $"[{doneMark}] {Title}{dd} (ID: {Id})";
+            return $"[{doneMark}] {Title}{dd}";
         }
     }
 
@@ -53,9 +66,9 @@ namespace TaskManagerLibrary
     {
         private List<TaskItem> tasks = new List<TaskItem>();
 
-        public TaskItem AddTask(string title, string description)
+        public TaskItem AddTask(string title, string description, ImportanceLevel importance = ImportanceLevel.Medium)
         {
-            var t = new TaskItem(title, description);
+            var t = new TaskItem(title, description, importance);
             tasks.Add(t);
             return t;
         }

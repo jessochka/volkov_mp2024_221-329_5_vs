@@ -1,28 +1,40 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Drawing;
 using OpenCvSharp;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using PointF = System.Drawing.PointF;
 
 namespace ImageAlignmentLibrary
 {
     public class ImageProcessor : IDisposable
     {
+        /// <summary>
+        /// Исходное изображение
+        /// </summary>
         public Image<Rgba32>? OriginalImage { get; private set; }
+
+        /// <summary>
+        /// Текущее выравненное (или повернутое) изображение
+        /// </summary>
         public Image<Rgba32>? AlignedImage { get; private set; }
 
         /// <summary>
-        /// Храним здесь 4 точки (углы), найденные при последнем вызове "ReDetectDominantRectangleOnAligned"
+        /// 4 угловые точки последнего детектированного прямоугольника
         /// </summary>
-        public List<System.Drawing.PointF>? DetectedRectanglePoints { get; private set; }
+        public List<PointF>? DetectedRectanglePoints { get; private set; }
 
         /// <summary>
-        /// Текущий угол поворота в градусах
+        /// Текущий угол поворота изображения
         /// </summary>
         public double CurrentAngle { get; private set; } = 0.0;
 
+        /// <summary>
+        /// Загрузить изображение с диска
+        /// </summary>
         public void LoadImage(string filePath)
         {
             if (!File.Exists(filePath))
@@ -35,11 +47,12 @@ namespace ImageAlignmentLibrary
         }
 
         /// <summary>
-        /// Сбрасывает выровненное изображение и обнуляет точки
+        /// Сбросить все изменения и вернуть исходное изображение
         /// </summary>
         public void ResetImage()
         {
             if (OriginalImage == null) return;
+
             AlignedImage?.Dispose();
             AlignedImage = OriginalImage.Clone();
             DetectedRectanglePoints = null;
@@ -47,32 +60,41 @@ namespace ImageAlignmentLibrary
         }
 
         /// <summary>
-        /// Автоматически вычисляет угол (по текущему AlignedImage), 
-        /// поворачивает AlignedImage, а затем заново детектирует прямоугольник
-        /// уже на повернутом AlignedImage.
+        /// Метод "автовыравнивания": ищем угол на текущем AlignedImage, 
+        /// поворачиваем на -angle, и заново детектируем контур
         /// </summary>
         public void AutoAlignImage()
         {
             if (AlignedImage == null)
                 throw new InvalidOperationException("Изображение не загружено.");
 
-            // 1. Ищем угол на AlignedImage
-            using var matAligned = ImageSharpToMat(AlignedImage);
-            double angle = DetectAngleByDominantRectangle(matAligned);
+            // 1. Ищем угол (по внешнему контуру) - основной способ
+            double angle = DetectAngleOnAligned();
 
-            // 2. Поворачиваем AlignedImage на (-angle) градусов для выравнивания
+            // 2. Поворачиваем на -angle
             double targetAngle = CurrentAngle - angle;
             RotateImage(targetAngle);
 
-            // 3. После поворота заново детектируем 
-            //    уже на "AlignedImage", чтобы зелёный прямоугольник 
-            //    соответствовал повернутой картинке
-            ReDetectDominantRectangleOnAligned();
+            // 3. Повторяем поиск несколько раз, если не получилось
+            //    с первого раза найти контур
+            const int maxTries = 3;
+            for (int i = 0; i < maxTries; i++)
+            {
+                ReDetectDominantRectangleOnAligned();
+                if (DetectedRectanglePoints != null && DetectedRectanglePoints.Count == 4)
+                {
+                    // если нашёлся контур — выходим
+                    break;
+                }
+                // Иначе можно чуть усилить резкость или контраст
+                EnhanceEdges();
+            }
         }
 
         /// <summary>
-        /// Запускает детектор на текущем "AlignedImage" 
-        /// и сохраняет углы в DetectedRectanglePoints
+        /// Заново детектируем прямоугольник на текущем AlignedImage
+        /// (используя поиск перепада пикселей "белый фон -> картинка")
+        /// Если не находим — повторить процедуру несколько раз в AutoAlignImage()
         /// </summary>
         public void ReDetectDominantRectangleOnAligned()
         {
@@ -80,41 +102,34 @@ namespace ImageAlignmentLibrary
             if (AlignedImage == null) return;
 
             using var mat = ImageSharpToMat(AlignedImage);
-            var corners = DetectDominantRectangle(mat, out double dummyAngle);
+            var corners = DetectDominantRectangle(mat, out double _);
             if (corners != null)
             {
-                var list = new List<System.Drawing.PointF>();
+                var list = new List<PointF>();
                 foreach (var cvp in corners)
                 {
-                    list.Add(new System.Drawing.PointF((float)cvp.X, (float)cvp.Y));
+                    list.Add(new PointF(cvp.X, cvp.Y));
                 }
                 DetectedRectanglePoints = list;
             }
         }
 
         /// <summary>
-        /// Повернуть AlignedImage на targetAngle градусов относительно OriginalImage.
+        /// Повернуть текущее "AlignedImage" на targetAngle (относительно OriginalImage)
         /// </summary>
         public void RotateImage(double targetAngle)
         {
             if (OriginalImage == null) return;
 
-            // Обновляем текущий угол
             CurrentAngle = targetAngle;
-
-            // Удаляем предыдущую выровненную версию
             AlignedImage?.Dispose();
 
-            // Создаём новую выровненную версию, повернутую на CurrentAngle относительно OriginalImage
             AlignedImage = OriginalImage.Clone(ctx =>
             {
                 if (IsMultipleOf90((float)CurrentAngle))
                 {
                     RotateMode mode = GetRotateMode((float)CurrentAngle);
-                    if (mode != RotateMode.None)
-                    {
-                        ctx.Rotate(mode);
-                    }
+                    if (mode != RotateMode.None) ctx.Rotate(mode);
                 }
                 else
                 {
@@ -124,16 +139,49 @@ namespace ImageAlignmentLibrary
         }
 
         /// <summary>
-        /// Проверяет, является ли угол кратным 90 градусам
+        /// Сохранить текущее выравненное изображение на диск
+        /// </summary>
+        public void SaveAlignedImage(string filePath)
+        {
+            AlignedImage?.Save(filePath);
+        }
+
+        #region Внутренние методы
+
+        /// <summary>
+        /// Общая логика: ищем угол на текущем "AlignedImage"
+        /// </summary>
+        private double DetectAngleOnAligned()
+        {
+            using var mat = ImageSharpToMat(AlignedImage!);
+            var corners = DetectDominantRectangle(mat, out double angle);
+            return angle;
+        }
+
+        /// <summary>
+        /// Попытка "причесать" изображение — поднять контраст,
+        /// чтобы перепад между белым фоном и объектом был отчётливее
+        /// </summary>
+        private void EnhanceEdges()
+        {
+            AlignedImage?.Mutate(ctx =>
+            {
+                ctx.Contrast(1.2f);
+                ctx.Brightness(1.05f);
+            });
+        }
+
+        /// <summary>
+        /// Проверяем, является ли угол кратным 90
         /// </summary>
         private bool IsMultipleOf90(float angle)
         {
             float mod = angle % 90;
-            return Math.Abs(mod) < 1e-3; // допускаем небольшую погрешность
+            return Math.Abs(mod) < 1e-3;
         }
 
         /// <summary>
-        /// Возвращает RotateMode для поворота кратного 90 градусам
+        /// Определяем RotateMode (90/180/270)
         /// </summary>
         private RotateMode GetRotateMode(float angle)
         {
@@ -150,44 +198,34 @@ namespace ImageAlignmentLibrary
         }
 
         /// <summary>
-        /// Детектируем угол (domRect) на переданном Mat (например, AlignedImage)
-        /// Возвращает угол в градусах
-        /// </summary>
-        private double DetectAngleByDominantRectangle(Mat src)
-        {
-            // Получаем углы
-            var corners = DetectDominantRectangle(src, out double angle);
-            // Возвращаем угол
-            return angle;
-        }
-
-        /// <summary>
-        /// Находит самый большой контур, строит minAreaRect, 
-        /// возвращает 4 угла (Point2f[4]) и угол (out)
+        /// Детектируем прямоугольник: ищем самый большой контур,
+        /// строим minAreaRect, возвращаем 4 точки + угол (outAngle)
+        /// Считаем, что фон — белый, а объект — более тёмный
         /// </summary>
         private OpenCvSharp.Point2f[]? DetectDominantRectangle(Mat src, out double outAngle)
         {
             outAngle = 0.0;
+            int width = src.Width, height = src.Height;
 
             using var gray = new Mat();
             Cv2.CvtColor(src, gray, ColorConversionCodes.BGR2GRAY);
+
+            // Мягкий blur
             Cv2.GaussianBlur(gray, gray, new OpenCvSharp.Size(5, 5), 0);
 
-            // Используем Canny Edge Detection вместо простой пороговой обработки
-            double threshold1 = 100;
-            double threshold2 = 200;
+            // Допустим, фон очень светлый (белый), значит, можно найти переход по threshold
             using var edges = new Mat();
-            Cv2.Canny(gray, edges, threshold1, threshold2);
+            Cv2.Canny(gray, edges, 80, 200);
 
+            // Находим контуры
             OpenCvSharp.Point[][] contours;
             HierarchyIndex[] hierarchy;
-            Cv2.FindContours(edges, out contours, out hierarchy, RetrievalModes.External, ContourApproximationModes.ApproxSimple);
-
+            Cv2.FindContours(edges, out contours, out hierarchy,
+                RetrievalModes.External, ContourApproximationModes.ApproxSimple);
             if (contours.Length == 0) return null;
 
-            // Найти самый большой контур с минимальной площадью
-            double imgArea = src.Width * src.Height;
-            double minContourArea = imgArea * 0.01; // например, 1% от площади
+            double imgArea = width * height;
+            double minContourArea = imgArea * 0.005; // 0.5% от площади
 
             double maxArea = 0.0;
             RotatedRect maxRect = new RotatedRect();
@@ -201,22 +239,20 @@ namespace ImageAlignmentLibrary
                 }
             }
 
-            if (maxArea == 0.0) return null;
+            if (maxArea <= 0.0) return null;
 
             double angleDetected = maxRect.Angle;
             if (angleDetected < -45) angleDetected += 90;
 
             outAngle = angleDetected;
+            var rectCorners = maxRect.Points();
 
-            var rectCorners = maxRect.Points(); // 4 точки
             return rectCorners;
         }
 
-        public void SaveAlignedImage(string filePath)
-        {
-            AlignedImage?.Save(filePath);
-        }
-
+        /// <summary>
+        /// Преобразуем ImageSharp -> OpenCV (Mat)
+        /// </summary>
         private Mat ImageSharpToMat(Image<Rgba32> img)
         {
             using var ms = new MemoryStream();
@@ -225,17 +261,12 @@ namespace ImageAlignmentLibrary
             return Cv2.ImDecode(ms.ToArray(), ImreadModes.Color);
         }
 
-        private SixLabors.ImageSharp.Image<Rgba32> MatToImageSharp(Mat mat)
-        {
-            Cv2.ImEncode(".bmp", mat, out byte[] bytes);
-            using var ms = new MemoryStream(bytes);
-            return SixLabors.ImageSharp.Image.Load<Rgba32>(ms);
-        }
-
         public void Dispose()
         {
             OriginalImage?.Dispose();
             AlignedImage?.Dispose();
         }
+
+        #endregion
     }
 }

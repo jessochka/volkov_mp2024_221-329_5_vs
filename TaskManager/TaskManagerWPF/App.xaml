@@ -4,6 +4,21 @@
              xmlns:local="clr-namespace:TaskManagerWPF"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+
+        <!-- Глобальные кисти -->
+        <SolidColorBrush x:Key="WindowBackgroundBrush" Color="White"/>
+        <SolidColorBrush x:Key="WindowForegroundBrush" Color="Black"/>
+        <SolidColorBrush x:Key="PanelBackgroundBrush" Color="#EEEEEE"/>
+        <SolidColorBrush x:Key="PanelForegroundBrush" Color="Black"/>
+
+        <Style x:Key="WindowStyleBase" TargetType="Window">
+            <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource WindowForegroundBrush}"/>
+        </Style>
+
+        <Style x:Key="PanelStyleBase" TargetType="Panel">
+            <Setter Property="Background" Value="{DynamicResource PanelBackgroundBrush}"/>
+        </Style>
+
     </Application.Resources>
 </Application>

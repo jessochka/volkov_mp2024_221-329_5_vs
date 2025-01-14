@@ -91,7 +91,7 @@
                     <Line x:Name="lineVertical" Stroke="Red" StrokeThickness="2" Visibility="Collapsed"/>
                     <Line x:Name="lineDiagonal1" Stroke="Blue" StrokeThickness="2" Visibility="Collapsed"/>
                     <Line x:Name="lineDiagonal2" Stroke="Blue" StrokeThickness="2" Visibility="Collapsed"/>
-                    <!-- Элементы для отображения зеленых линий контура -->
+                    <!-- Элементы для отображения линий контура -->
                     <Line x:Name="lineTop" Stroke="Blue" StrokeThickness="2" Visibility="Collapsed"/>
                     <Line x:Name="lineRight" Stroke="Blue" StrokeThickness="2" Visibility="Collapsed"/>
                     <Line x:Name="lineBottom" Stroke="Blue" StrokeThickness="2" Visibility="Collapsed"/>

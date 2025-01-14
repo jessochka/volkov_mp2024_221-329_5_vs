@@ -15,7 +15,7 @@
         private System.Windows.Forms.CheckBox chkDiagonals;
         private System.Windows.Forms.Button btnSaveImage;
         private System.Windows.Forms.Button btnAutoAlign;
-        private System.Windows.Forms.Button btnToggleContour; // Новая кнопка
+        private System.Windows.Forms.Button btnToggleContour;
 
         protected override void Dispose(bool disposing)
         {
@@ -40,7 +40,7 @@
             this.chkDiagonals = new System.Windows.Forms.CheckBox();
             this.btnSaveImage = new System.Windows.Forms.Button();
             this.btnAutoAlign = new System.Windows.Forms.Button();
-            this.btnToggleContour = new System.Windows.Forms.Button(); // Инициализация новой кнопки
+            this.btnToggleContour = new System.Windows.Forms.Button();
 
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tbAngle)).BeginInit();

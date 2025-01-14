@@ -6,7 +6,7 @@ using SdColor = System.Drawing.Color;
 using ImageAlignmentLibrary;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing.Processors;
+using System.Reflection;
 
 namespace ImageAlignmentWFA
 {
@@ -14,8 +14,8 @@ namespace ImageAlignmentWFA
     {
         private ImageProcessor? imageProcessor;
         private Image<Rgba32>? originalImage;
-        private bool showContours = true; // Переменная для отслеживания видимости контура
-        private bool isUpdating = false; // Переменная для предотвращения рекурсии при обновлении TrackBar
+        private bool showContours = true;
+        private bool isUpdating = false;
 
         public Form1()
         {
@@ -28,7 +28,7 @@ namespace ImageAlignmentWFA
             btnRotateMinus90.Click += BtnRotateMinus90_Click;
             btnSaveImage.Click += BtnSaveImage_Click;
             btnAutoAlign.Click += BtnAutoAlign_Click;
-            btnToggleContour.Click += BtnToggleContour_Click; // Привязка события для новой кнопки
+            btnToggleContour.Click += BtnToggleContour_Click;
 
             chkGuidelines.CheckedChanged += (s, e) => pictureBox1.Invalidate();
             chkDiagonals.CheckedChanged += (s, e) => pictureBox1.Invalidate();
@@ -37,17 +37,9 @@ namespace ImageAlignmentWFA
             txtAngle.KeyPress += TxtAngle_KeyPress;
             this.Resize += Form1_Resize;
 
-            // Включение двойной буферизации для PictureBox для устранения мерцания
             typeof(PictureBox).InvokeMember("DoubleBuffered",
-                System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic,
+                BindingFlags.SetProperty | BindingFlags.Instance | BindingFlags.NonPublic,
                 null, pictureBox1, new object[] { true });
-        }
-
-        private void BtnToggleContour_Click(object sender, EventArgs e)
-        {
-            showContours = !showContours;
-            btnToggleContour.Text = showContours ? "Скрыть контур" : "Показать контур";
-            pictureBox1.Invalidate(); // Перерисовываем PictureBox
         }
 
         private void BtnLoadImage_Click(object sender, EventArgs e)
@@ -57,11 +49,9 @@ namespace ImageAlignmentWFA
             {
                 imageProcessor?.Dispose();
                 imageProcessor = new ImageProcessor();
-
                 imageProcessor.LoadImage(ofd.FileName);
-                originalImage = imageProcessor.OriginalImage?.Clone();
 
-                // Как только картинка загружена, сразу ищем прямоугольник на (ещё) не повернутом изображении
+                originalImage = imageProcessor.OriginalImage?.Clone();
                 imageProcessor.ReDetectDominantRectangleOnAligned();
 
                 UpdatePicture();
@@ -77,7 +67,7 @@ namespace ImageAlignmentWFA
                 return;
             }
             imageProcessor.ResetImage();
-            imageProcessor.ReDetectDominantRectangleOnAligned(); // Обновляем прямоугольник
+            imageProcessor.ReDetectDominantRectangleOnAligned();
 
             isUpdating = true;
             tbAngle.Value = 0;
@@ -97,8 +87,6 @@ namespace ImageAlignmentWFA
             txtAngle.Text = angle.ToString();
 
             imageProcessor.RotateImage(angle);
-
-            // после поворота – заново ищем прямоугольник на AlignedImage
             imageProcessor.ReDetectDominantRectangleOnAligned();
 
             UpdatePicture();
@@ -110,10 +98,9 @@ namespace ImageAlignmentWFA
         {
             if (imageProcessor == null) return;
 
-            double newAngleDouble = imageProcessor.CurrentAngle + 90;
-            int angle = NormalizeAngle(newAngleDouble);
+            double newAngle = imageProcessor.CurrentAngle + 90;
+            int angle = NormalizeAngle(newAngle);
 
-            // Обновляем TrackBar и TextBox без вызова событий
             isUpdating = true;
             tbAngle.Value = angle;
             txtAngle.Text = angle.ToString();
@@ -129,10 +116,9 @@ namespace ImageAlignmentWFA
         {
             if (imageProcessor == null) return;
 
-            double newAngleDouble = imageProcessor.CurrentAngle - 90;
-            int angle = NormalizeAngle(newAngleDouble);
+            double newAngle = imageProcessor.CurrentAngle - 90;
+            int angle = NormalizeAngle(newAngle);
 
-            // Обновляем TrackBar и TextBox без вызова событий
             isUpdating = true;
             tbAngle.Value = angle;
             txtAngle.Text = angle.ToString();
@@ -179,7 +165,6 @@ namespace ImageAlignmentWFA
             }
         }
 
-        // Кнопка Автовыравнивания
         private void BtnAutoAlign_Click(object sender, EventArgs e)
         {
             if (imageProcessor == null)
@@ -189,12 +174,8 @@ namespace ImageAlignmentWFA
             }
             try
             {
-                // Выполняем автовыравнивание
                 imageProcessor.AutoAlignImage();
-                // AutoAlignImage внутри сам ещё раз вызовет 
-                // ReDetectDominantRectangleOnAligned для повернутого
 
-                // Обновляем TrackBar и TextBox
                 isUpdating = true;
                 int newAngle = (int)Math.Round(imageProcessor.CurrentAngle);
                 newAngle = NormalizeAngle(newAngle);
@@ -211,21 +192,23 @@ namespace ImageAlignmentWFA
             }
         }
 
-        // Рисуем направляющие + зелёный прямоугольник
+        private void BtnToggleContour_Click(object sender, EventArgs e)
+        {
+            showContours = !showContours;
+            btnToggleContour.Text = showContours ? "Скрыть контур" : "Показать контур";
+            pictureBox1.Invalidate();
+        }
+
         private void PictureBox1_Paint(object sender, PaintEventArgs e)
         {
-            if (chkGuidelines.Checked)
-                DrawGuidelines(e.Graphics);
-
-            if (chkDiagonals.Checked)
-                DrawDiagonals(e.Graphics);
+            if (chkGuidelines.Checked) DrawGuidelines(e.Graphics);
+            if (chkDiagonals.Checked) DrawDiagonals(e.Graphics);
 
             if (imageProcessor?.DetectedRectanglePoints != null && showContours)
             {
                 var pts = imageProcessor.DetectedRectanglePoints;
                 if (pts.Count == 4 && pictureBox1.Image != null)
                 {
-                    // Вычисляем масштаб, offset, т.к. PictureBox Zoom
                     int imgW = pictureBox1.Image.Width;
                     int imgH = pictureBox1.Image.Height;
                     var pbRect = pictureBox1.ClientRectangle;
@@ -239,7 +222,6 @@ namespace ImageAlignmentWFA
 
                     using var penRect = new Pen(SdColor.Blue, 2);
 
-                    // Расширение линий за границы
                     float extension = 10.0f;
 
                     for (int i = 0; i < 4; i++)
@@ -253,18 +235,14 @@ namespace ImageAlignmentWFA
                         float pxB = pB.X * ratio + offsetX;
                         float pyB = pB.Y * ratio + offsetY;
 
-                        // Вычисляем направление линии
                         float dx = pxB - pxA;
                         float dy = pyB - pyA;
                         float length = (float)Math.Sqrt(dx * dx + dy * dy);
-
                         if (length == 0) continue;
 
-                        // Нормализуем вектор направления
                         float ux = dx / length;
                         float uy = dy / length;
 
-                        // Расширяем линии вперед и назад
                         float extendedPxA = pxA - ux * extension;
                         float extendedPyA = pyA - uy * extension;
                         float extendedPxB = pxB + ux * extension;
@@ -294,8 +272,7 @@ namespace ImageAlignmentWFA
 
         private void TxtAngle_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar)
-                && e.KeyChar != '-' && e.KeyChar != '\b')
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && e.KeyChar != '-' && e.KeyChar != '\b')
             {
                 e.Handled = true;
             }
@@ -313,8 +290,6 @@ namespace ImageAlignmentWFA
                     isUpdating = false;
 
                     imageProcessor?.RotateImage(val);
-
-                    // Перезапустим детектор
                     imageProcessor?.ReDetectDominantRectangleOnAligned();
 
                     UpdatePicture();
@@ -348,12 +323,12 @@ namespace ImageAlignmentWFA
             if (imageProcessor?.AlignedImage == null) return;
 
             pictureBox1.Image?.Dispose();
+
             using var ms = new MemoryStream();
             imageProcessor.AlignedImage.SaveAsBmp(ms);
             ms.Seek(0, SeekOrigin.Begin);
             pictureBox1.Image = new Bitmap(ms);
 
-            // Перерисовываем, чтобы отображался прямоугольник
             pictureBox1.Invalidate();
         }
     }
