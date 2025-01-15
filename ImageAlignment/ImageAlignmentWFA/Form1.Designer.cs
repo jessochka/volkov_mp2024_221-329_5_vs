@@ -3,7 +3,6 @@
     partial class Form1
     {
         private System.ComponentModel.IContainer components = null;
-
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Button btnLoadImage;
         private System.Windows.Forms.Button btnReset;
@@ -16,169 +15,209 @@
         private System.Windows.Forms.Button btnSaveImage;
         private System.Windows.Forms.Button btnAutoAlign;
         private System.Windows.Forms.Button btnToggleContour;
+        private System.Windows.Forms.Button btnSaveAs;
+        private System.Windows.Forms.CheckBox chkAutoCrop;
+        private System.Windows.Forms.Label lblOperationTime;
+        private System.Windows.Forms.Label lblImagePath;
 
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
             {
                 components.Dispose();
-                imageProcessor?.Dispose(); // освобождение ресурсов
+                imageProcessor?.Dispose();
             }
             base.Dispose(disposing);
         }
 
         private void InitializeComponent()
         {
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.btnLoadImage = new System.Windows.Forms.Button();
-            this.btnReset = new System.Windows.Forms.Button();
-            this.tbAngle = new System.Windows.Forms.TrackBar();
-            this.txtAngle = new System.Windows.Forms.TextBox();
-            this.btnRotate90 = new System.Windows.Forms.Button();
-            this.btnRotateMinus90 = new System.Windows.Forms.Button();
-            this.chkGuidelines = new System.Windows.Forms.CheckBox();
-            this.chkDiagonals = new System.Windows.Forms.CheckBox();
-            this.btnSaveImage = new System.Windows.Forms.Button();
-            this.btnAutoAlign = new System.Windows.Forms.Button();
-            this.btnToggleContour = new System.Windows.Forms.Button();
-
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.tbAngle)).BeginInit();
-            this.SuspendLayout();
-            //
+            pictureBox1 = new PictureBox();
+            btnLoadImage = new Button();
+            btnReset = new Button();
+            tbAngle = new TrackBar();
+            txtAngle = new TextBox();
+            btnRotate90 = new Button();
+            btnRotateMinus90 = new Button();
+            chkGuidelines = new CheckBox();
+            chkDiagonals = new CheckBox();
+            btnSaveImage = new Button();
+            btnAutoAlign = new Button();
+            btnToggleContour = new Button();
+            btnSaveAs = new Button();
+            chkAutoCrop = new CheckBox();
+            lblOperationTime = new Label();
+            lblImagePath = new Label();
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)tbAngle).BeginInit();
+            SuspendLayout();
+            // 
             // pictureBox1
-            //
-            this.pictureBox1.Anchor =
-                ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                                                      | System.Windows.Forms.AnchorStyles.Left)
-                                                      | System.Windows.Forms.AnchorStyles.Right)));
-            this.pictureBox1.Location = new System.Drawing.Point(271, 10);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(862, 600);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
-            //
+            // 
+            pictureBox1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            pictureBox1.Location = new Point(286, 10);
+            pictureBox1.Name = "pictureBox1";
+            pictureBox1.Size = new Size(847, 659);
+            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox1.TabIndex = 0;
+            pictureBox1.TabStop = false;
+            // 
             // btnLoadImage
-            //
-            this.btnLoadImage.Location = new System.Drawing.Point(10, 10);
-            this.btnLoadImage.Name = "btnLoadImage";
-            this.btnLoadImage.Size = new System.Drawing.Size(150, 44);
-            this.btnLoadImage.TabIndex = 1;
-            this.btnLoadImage.Text = "Загрузить";
-            this.btnLoadImage.UseVisualStyleBackColor = true;
-            //
+            // 
+            btnLoadImage.Location = new Point(10, 12);
+            btnLoadImage.Name = "btnLoadImage";
+            btnLoadImage.Size = new Size(150, 42);
+            btnLoadImage.TabIndex = 1;
+            btnLoadImage.Text = "Загрузить";
+            btnLoadImage.UseVisualStyleBackColor = true;
+            // 
             // btnReset
-            //
-            this.btnReset.Location = new System.Drawing.Point(10, 60);
-            this.btnReset.Name = "btnReset";
-            this.btnReset.Size = new System.Drawing.Size(150, 30);
-            this.btnReset.TabIndex = 2;
-            this.btnReset.Text = "Сбросить";
-            this.btnReset.UseVisualStyleBackColor = true;
-            //
+            // 
+            btnReset.Location = new Point(10, 60);
+            btnReset.Name = "btnReset";
+            btnReset.Size = new Size(150, 42);
+            btnReset.TabIndex = 2;
+            btnReset.Text = "Сбросить";
+            btnReset.UseVisualStyleBackColor = true;
+            // 
             // tbAngle
-            //
-            this.tbAngle.Location = new System.Drawing.Point(10, 120);
-            this.tbAngle.Maximum = 180;
-            this.tbAngle.Minimum = -180;
-            this.tbAngle.Name = "tbAngle";
-            this.tbAngle.Size = new System.Drawing.Size(160, 45);
-            this.tbAngle.TabIndex = 3;
-            //
+            // 
+            tbAngle.Location = new Point(1, 120);
+            tbAngle.Maximum = 180;
+            tbAngle.Minimum = -180;
+            tbAngle.Name = "tbAngle";
+            tbAngle.Size = new Size(231, 69);
+            tbAngle.TabIndex = 3;
+            // 
             // txtAngle
-            //
-            this.txtAngle.Location = new System.Drawing.Point(176, 120);
-            this.txtAngle.Name = "txtAngle";
-            this.txtAngle.Size = new System.Drawing.Size(60, 23);
-            this.txtAngle.TabIndex = 4;
-            this.txtAngle.Text = "0";
-            //
+            // 
+            txtAngle.Location = new Point(238, 120);
+            txtAngle.Name = "txtAngle";
+            txtAngle.Size = new Size(41, 31);
+            txtAngle.TabIndex = 4;
+            txtAngle.Text = "0";
+            // 
             // btnRotate90
-            //
-            this.btnRotate90.Location = new System.Drawing.Point(10, 210);
-            this.btnRotate90.Name = "btnRotate90";
-            this.btnRotate90.Size = new System.Drawing.Size(75, 30);
-            this.btnRotate90.TabIndex = 5;
-            this.btnRotate90.Text = "+90°";
-            this.btnRotate90.UseVisualStyleBackColor = true;
-            //
+            // 
+            btnRotate90.Location = new Point(27, 174);
+            btnRotate90.Name = "btnRotate90";
+            btnRotate90.Size = new Size(75, 30);
+            btnRotate90.TabIndex = 5;
+            btnRotate90.Text = "+90°";
+            btnRotate90.UseVisualStyleBackColor = true;
+            // 
             // btnRotateMinus90
-            //
-            this.btnRotateMinus90.Location = new System.Drawing.Point(95, 210);
-            this.btnRotateMinus90.Name = "btnRotateMinus90";
-            this.btnRotateMinus90.Size = new System.Drawing.Size(75, 30);
-            this.btnRotateMinus90.TabIndex = 6;
-            this.btnRotateMinus90.Text = "-90°";
-            this.btnRotateMinus90.UseVisualStyleBackColor = true;
-            //
+            // 
+            btnRotateMinus90.Location = new Point(123, 174);
+            btnRotateMinus90.Name = "btnRotateMinus90";
+            btnRotateMinus90.Size = new Size(75, 30);
+            btnRotateMinus90.TabIndex = 6;
+            btnRotateMinus90.Text = "-90°";
+            btnRotateMinus90.UseVisualStyleBackColor = true;
+            // 
             // chkGuidelines
-            //
-            this.chkGuidelines.Location = new System.Drawing.Point(10, 260);
-            this.chkGuidelines.Name = "chkGuidelines";
-            this.chkGuidelines.Size = new System.Drawing.Size(226, 35);
-            this.chkGuidelines.TabIndex = 7;
-            this.chkGuidelines.Text = "Направляющие линии";
-            this.chkGuidelines.UseVisualStyleBackColor = true;
-            //
+            // 
+            chkGuidelines.Location = new Point(9, 219);
+            chkGuidelines.Name = "chkGuidelines";
+            chkGuidelines.Size = new Size(270, 35);
+            chkGuidelines.TabIndex = 7;
+            chkGuidelines.Text = "Направляющие линии";
+            chkGuidelines.UseVisualStyleBackColor = true;
+            // 
             // chkDiagonals
-            //
-            this.chkDiagonals.Location = new System.Drawing.Point(10, 301);
-            this.chkDiagonals.Name = "chkDiagonals";
-            this.chkDiagonals.Size = new System.Drawing.Size(270, 24);
-            this.chkDiagonals.TabIndex = 8;
-            this.chkDiagonals.Text = "Направляющие диагонали";
-            this.chkDiagonals.UseVisualStyleBackColor = true;
-            //
+            // 
+            chkDiagonals.Location = new Point(9, 254);
+            chkDiagonals.Name = "chkDiagonals";
+            chkDiagonals.Size = new Size(270, 39);
+            chkDiagonals.TabIndex = 8;
+            chkDiagonals.Text = "Направляющие диагонали";
+            chkDiagonals.UseVisualStyleBackColor = true;
+            // 
             // btnSaveImage
-            //
-            this.btnSaveImage.Location = new System.Drawing.Point(10, 340);
-            this.btnSaveImage.Name = "btnSaveImage";
-            this.btnSaveImage.Size = new System.Drawing.Size(150, 30);
-            this.btnSaveImage.TabIndex = 9;
-            this.btnSaveImage.Text = "Сохранить";
-            this.btnSaveImage.UseVisualStyleBackColor = true;
-            //
+            // 
+            btnSaveImage.Location = new Point(158, 639);
+            btnSaveImage.Name = "btnSaveImage";
+            btnSaveImage.Size = new Size(122, 30);
+            btnSaveImage.TabIndex = 9;
+            btnSaveImage.Text = "Сохранить";
+            btnSaveImage.UseVisualStyleBackColor = true;
+            // 
             // btnAutoAlign
-            //
-            this.btnAutoAlign.Location = new System.Drawing.Point(10, 174);
-            this.btnAutoAlign.Name = "btnAutoAlign";
-            this.btnAutoAlign.Size = new System.Drawing.Size(160, 30);
-            this.btnAutoAlign.TabIndex = 10;
-            this.btnAutoAlign.Text = "Автовыравнивание";
-            this.btnAutoAlign.UseVisualStyleBackColor = true;
-            //
+            // 
+            btnAutoAlign.Location = new Point(9, 335);
+            btnAutoAlign.Name = "btnAutoAlign";
+            btnAutoAlign.Size = new Size(188, 44);
+            btnAutoAlign.TabIndex = 10;
+            btnAutoAlign.Text = "Автовыравнивание";
+            btnAutoAlign.UseVisualStyleBackColor = true;
+            // 
             // btnToggleContour
-            //
-            this.btnToggleContour.Location = new System.Drawing.Point(10, 420);
-            this.btnToggleContour.Name = "btnToggleContour";
-            this.btnToggleContour.Size = new System.Drawing.Size(160, 30);
-            this.btnToggleContour.TabIndex = 12;
-            this.btnToggleContour.Text = "Скрыть контур";
-            this.btnToggleContour.UseVisualStyleBackColor = true;
-            //
+            // 
+            btnToggleContour.Location = new Point(10, 421);
+            btnToggleContour.Name = "btnToggleContour";
+            btnToggleContour.Size = new Size(188, 38);
+            btnToggleContour.TabIndex = 12;
+            btnToggleContour.Text = "Скрыть контур";
+            btnToggleContour.UseVisualStyleBackColor = true;
+            // 
+            // btnSaveAs
+            // 
+            btnSaveAs.Location = new Point(1, 639);
+            btnSaveAs.Name = "btnSaveAs";
+            btnSaveAs.Size = new Size(150, 30);
+            btnSaveAs.TabIndex = 15;
+            btnSaveAs.Text = "Сохранить как";
+            btnSaveAs.UseVisualStyleBackColor = true;
+            // 
+            // chkAutoCrop
+            // 
+            chkAutoCrop.Location = new Point(10, 299);
+            chkAutoCrop.Name = "chkAutoCrop";
+            chkAutoCrop.Size = new Size(269, 30);
+            chkAutoCrop.TabIndex = 13;
+            chkAutoCrop.Text = "Автообрезка";
+            chkAutoCrop.UseVisualStyleBackColor = true;
+            // 
+            // lblOperationTime
+            // 
+            lblOperationTime.Location = new Point(9, 382);
+            lblOperationTime.Name = "lblOperationTime";
+            lblOperationTime.Size = new Size(270, 36);
+            lblOperationTime.TabIndex = 14;
+            // 
+            // lblImagePath
+            // 
+            lblImagePath.Location = new Point(1, 533);
+            lblImagePath.Name = "lblImagePath";
+            lblImagePath.Size = new Size(250, 103);
+            lblImagePath.TabIndex = 16;
+            lblImagePath.Text = "Путь к изображению:";
+            // 
             // Form1
-            //
-            this.ClientSize = new System.Drawing.Size(1143, 630);
-            this.Controls.Add(this.btnToggleContour);
-            this.Controls.Add(this.btnAutoAlign);
-            this.Controls.Add(this.btnSaveImage);
-            this.Controls.Add(this.chkDiagonals);
-            this.Controls.Add(this.chkGuidelines);
-            this.Controls.Add(this.btnRotateMinus90);
-            this.Controls.Add(this.btnRotate90);
-            this.Controls.Add(this.txtAngle);
-            this.Controls.Add(this.tbAngle);
-            this.Controls.Add(this.btnReset);
-            this.Controls.Add(this.btnLoadImage);
-            this.Controls.Add(this.pictureBox1);
-            this.Name = "Form1";
-            this.Text = "Выравнивание (WFA)";
-
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.tbAngle)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            // 
+            ClientSize = new Size(1143, 689);
+            Controls.Add(btnSaveAs);
+            Controls.Add(lblOperationTime);
+            Controls.Add(chkAutoCrop);
+            Controls.Add(chkDiagonals);
+            Controls.Add(chkGuidelines);
+            Controls.Add(btnRotateMinus90);
+            Controls.Add(btnRotate90);
+            Controls.Add(txtAngle);
+            Controls.Add(tbAngle);
+            Controls.Add(btnReset);
+            Controls.Add(btnLoadImage);
+            Controls.Add(pictureBox1);
+            Controls.Add(btnSaveImage);
+            Controls.Add(btnAutoAlign);
+            Controls.Add(btnToggleContour);
+            Controls.Add(lblImagePath);
+            Name = "Form1";
+            Text = "Выравнивание (WFA)";
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)tbAngle).EndInit();
+            ResumeLayout(false);
+            PerformLayout();
         }
     }
 }

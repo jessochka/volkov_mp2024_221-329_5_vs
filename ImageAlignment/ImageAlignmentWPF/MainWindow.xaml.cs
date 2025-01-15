@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using System.Drawing;
 using MediaColor = System.Windows.Media.Color;
 using MediaBrushes = System.Windows.Media.Brushes;
+using SixLabors.ImageSharp.Processing;
 
 namespace ImageAlignmentWPF
 {
@@ -25,13 +26,16 @@ namespace ImageAlignmentWPF
         private bool showContours = true;
         private bool isUpdating = false;
         private bool isDarkTheme = false; // Флаг текущей темы
+        private string? currentImagePath;
+        private Image<Rgba32>? lowResImage; // Копия для обработки
+        private const int MaxDimension = 1000;
 
         public MainWindow()
         {
             InitializeComponent();
         }
 
-        // Переключение темы -->
+        // Переключение темы
         private void btnToggleTheme_Click(object sender, RoutedEventArgs e)
         {
             isDarkTheme = !isDarkTheme;
@@ -65,17 +69,43 @@ namespace ImageAlignmentWPF
             };
             if (ofd.ShowDialog() == true)
             {
+                currentImagePath = ofd.FileName;
+                txtImagePath.Text = $"Путь к изображению: {currentImagePath}";
+
                 HideAllContours();
                 imageProcessor?.Dispose();
                 imageProcessor = new ImageProcessor();
-                imageProcessor.LoadImage(ofd.FileName);
+                imageProcessor.LoadImage(currentImagePath);
 
+                // Создание уменьшенной копии
                 originalImage = imageProcessor.OriginalImage?.Clone();
+                lowResImage = CreateLowResCopy(originalImage, MaxDimension);
+
+                // Использование уменьшенной копии для обработки
+                if (lowResImage != null)
+                {
+                    imageProcessor.ResetImage();
+                    // Замена оригинала на уменьшенную копию для отображения и выравнивания
+                    imageProcessor.AlignedImage?.Dispose();
+                    imageProcessor.AlignedImage = lowResImage.Clone();
+                }
 
                 imageProcessor.ReDetectDominantRectangleOnAligned();
                 UpdateImageDisplay();
                 ResetControls();
             }
+        }
+
+        // Метод создания уменьшенной копии
+        private Image<Rgba32>? CreateLowResCopy(Image<Rgba32>? image, int maxDim)
+        {
+            if (image == null) return null;
+            if (image.Width <= maxDim && image.Height <= maxDim) return image.Clone();
+            double scale = Math.Min((double)maxDim / image.Width, (double)maxDim / image.Height);
+            int newWidth = (int)(image.Width * scale);
+            int newHeight = (int)(image.Height * scale);
+            var clone = image.Clone((IImageProcessingContext ctx) => ctx.Resize(newWidth, newHeight));
+            return clone;
         }
 
         private void btnReset_Click(object sender, RoutedEventArgs e)
@@ -104,8 +134,8 @@ namespace ImageAlignmentWPF
             if (isUpdating) return;
 
             isUpdating = true;
-            int angle = (int)Math.Round(e.NewValue);
-            txtAngle.Text = angle.ToString();
+            double angle = e.NewValue;
+            txtAngle.Text = angle.ToString("F2"); // отображаем с 2 знаками после запятой
 
             imageProcessor.RotateImage(angle);
             imageProcessor.ReDetectDominantRectangleOnAligned();
@@ -118,17 +148,17 @@ namespace ImageAlignmentWPF
         {
             if (e.Key == Key.Enter)
             {
-                if (int.TryParse(txtAngle.Text, out int val))
+                if (double.TryParse(txtAngle.Text, out double val))
                 {
-                    if (val < (int)sliderAngle.Minimum) val = (int)sliderAngle.Minimum;
-                    if (val > (int)sliderAngle.Maximum) val = (int)sliderAngle.Maximum;
+                    if (val < sliderAngle.Minimum) val = sliderAngle.Minimum;
+                    if (val > sliderAngle.Maximum) val = sliderAngle.Maximum;
 
                     if (imageProcessor != null)
                     {
                         isUpdating = true;
                         val = NormalizeAngle(val);
                         sliderAngle.Value = val;
-                        txtAngle.Text = val.ToString();
+                        txtAngle.Text = val.ToString("F2");
                         isUpdating = false;
 
                         imageProcessor.RotateImage(val);
@@ -190,12 +220,61 @@ namespace ImageAlignmentWPF
                 MessageBox.Show("Нет изображения для сохранения.");
                 return;
             }
+
+            if (File.Exists(currentImagePath))
+            {
+                var result = MessageBox.Show("Файл будет перезаписан. Продолжить?",
+                                             "Подтверждение", MessageBoxButton.YesNo);
+                if (result != MessageBoxResult.Yes) return;
+                try
+                {
+                    imageProcessor.SaveAlignedImage(currentImagePath);
+                    MessageBox.Show("Сохранено!");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Ошибка: " + ex.Message);
+                }
+            }
+            else
+            {
+                // Если файла нет
+                var sfd = new SaveFileDialog
+                {
+                    Filter = "JPEG|*.jpg;*.jpeg|PNG|*.png|Bitmap|*.bmp|TIFF|*.tif;*.tiff",
+                    Title = "Сохранить",
+                    FileName = currentImagePath != null ? System.IO.Path.GetFileName(currentImagePath) : "AlignedImage"
+                };
+                if (sfd.ShowDialog() == true)
+                {
+                    try
+                    {
+                        imageProcessor.SaveAlignedImage(sfd.FileName);
+                        MessageBox.Show("Сохранено!");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Ошибка: " + ex.Message);
+                    }
+                }
+            }
+        }
+
+        private void btnSaveAs_Click(object sender, RoutedEventArgs e)
+        {
+            if (imageProcessor?.AlignedImage == null)
+            {
+                MessageBox.Show("Нет изображения для сохранения.");
+                return;
+            }
+
             var sfd = new SaveFileDialog
             {
                 Filter = "JPEG|*.jpg;*.jpeg|PNG|*.png|Bitmap|*.bmp|TIFF|*.tif;*.tiff",
-                Title = "Сохранить",
-                FileName = "AlignedImage"
+                Title = "Сохранить как",
+                FileName = currentImagePath != null ? System.IO.Path.GetFileName(currentImagePath) : "AlignedImage"
             };
+
             if (sfd.ShowDialog() == true)
             {
                 try
@@ -210,7 +289,7 @@ namespace ImageAlignmentWPF
             }
         }
 
-        private void btnAutoAlign_Click(object sender, RoutedEventArgs e)
+        private async void btnAutoAlign_Click(object sender, RoutedEventArgs e)
         {
             if (imageProcessor == null)
             {
@@ -220,13 +299,23 @@ namespace ImageAlignmentWPF
 
             try
             {
+                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                 imageProcessor.AutoAlignImage();
 
+                if (chkAutoCrop.IsChecked == true)
+                {
+                    imageProcessor.AutoCrop();
+                }
+
+                stopwatch.Stop();
+
+                txtOperationTime.Text = $"Время выполнения: {stopwatch.ElapsedMilliseconds} мс";
+
                 isUpdating = true;
-                int newAngle = (int)Math.Round(imageProcessor.CurrentAngle);
+                double newAngle = imageProcessor.CurrentAngle;
                 newAngle = NormalizeAngle(newAngle);
                 sliderAngle.Value = newAngle;
-                txtAngle.Text = newAngle.ToString();
+                txtAngle.Text = newAngle.ToString("F2");
                 isUpdating = false;
 
                 UpdateImageDisplay();

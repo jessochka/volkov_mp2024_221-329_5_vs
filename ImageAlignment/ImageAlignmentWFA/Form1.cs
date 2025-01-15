@@ -7,6 +7,8 @@ using ImageAlignmentLibrary;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System.Reflection;
+using System.Diagnostics;
+using SixLabors.ImageSharp.Processing;
 
 namespace ImageAlignmentWFA
 {
@@ -16,6 +18,9 @@ namespace ImageAlignmentWFA
         private Image<Rgba32>? originalImage;
         private bool showContours = true;
         private bool isUpdating = false;
+        private string? currentImagePath;
+        private Image<Rgba32>? lowResImage;
+        private const int MaxDimension = 1000;
 
         public Form1()
         {
@@ -29,17 +34,11 @@ namespace ImageAlignmentWFA
             btnSaveImage.Click += BtnSaveImage_Click;
             btnAutoAlign.Click += BtnAutoAlign_Click;
             btnToggleContour.Click += BtnToggleContour_Click;
-
-            chkGuidelines.CheckedChanged += (s, e) => pictureBox1.Invalidate();
-            chkDiagonals.CheckedChanged += (s, e) => pictureBox1.Invalidate();
-
-            pictureBox1.Paint += PictureBox1_Paint;
+            btnSaveAs.Click += BtnSaveAs_Click;
             txtAngle.KeyPress += TxtAngle_KeyPress;
             this.Resize += Form1_Resize;
 
-            typeof(PictureBox).InvokeMember("DoubleBuffered",
-                BindingFlags.SetProperty | BindingFlags.Instance | BindingFlags.NonPublic,
-                null, pictureBox1, new object[] { true });
+            pictureBox1.Paint += PictureBox1_Paint;
         }
 
         private void BtnLoadImage_Click(object sender, EventArgs e)
@@ -50,16 +49,39 @@ namespace ImageAlignmentWFA
             };
             if (ofd.ShowDialog() == DialogResult.OK)
             {
+                currentImagePath = ofd.FileName;
+                lblImagePath.Text = $"Путь к изображению: {currentImagePath}";
+                lblImagePath.Refresh(); // Обновление отображения метки
+
                 imageProcessor?.Dispose();
                 imageProcessor = new ImageProcessor();
-                imageProcessor.LoadImage(ofd.FileName);
+                imageProcessor.LoadImage(currentImagePath);
 
                 originalImage = imageProcessor.OriginalImage?.Clone();
-                imageProcessor.ReDetectDominantRectangleOnAligned();
+                lowResImage = CreateLowResCopy(originalImage, MaxDimension);
 
+                if (lowResImage != null)
+                {
+                    imageProcessor.ResetImage();
+                    imageProcessor.AlignedImage?.Dispose();
+                    imageProcessor.AlignedImage = lowResImage.Clone();
+                }
+
+                imageProcessor.ReDetectDominantRectangleOnAligned();
                 UpdatePicture();
                 ResetControls();
             }
+        }
+
+        private Image<Rgba32>? CreateLowResCopy(Image<Rgba32>? image, int maxDim)
+        {
+            if (image == null) return null;
+            if (image.Width <= maxDim && image.Height <= maxDim) return image.Clone();
+            double scale = Math.Min((double)maxDim / image.Width, (double)maxDim / image.Height);
+            int newWidth = (int)(image.Width * scale);
+            int newHeight = (int)(image.Height * scale);
+            var clone = image.Clone(ctx => ctx.Resize(newWidth, newHeight));
+            return clone;
         }
 
         private void BtnReset_Click(object sender, EventArgs e)
@@ -100,7 +122,6 @@ namespace ImageAlignmentWFA
         private void BtnRotate90_Click(object sender, EventArgs e)
         {
             if (imageProcessor == null) return;
-
             double newAngle = imageProcessor.CurrentAngle + 90;
             int angle = NormalizeAngle(newAngle);
 
@@ -118,7 +139,6 @@ namespace ImageAlignmentWFA
         private void BtnRotateMinus90_Click(object sender, EventArgs e)
         {
             if (imageProcessor == null) return;
-
             double newAngle = imageProcessor.CurrentAngle - 90;
             int angle = NormalizeAngle(newAngle);
 
@@ -168,6 +188,35 @@ namespace ImageAlignmentWFA
             }
         }
 
+        private void BtnSaveAs_Click(object? sender, EventArgs e)
+        {
+            if (imageProcessor?.AlignedImage == null)
+            {
+                MessageBox.Show("Нет изображения для сохранения.");
+                return;
+            }
+
+            using var sfd = new SaveFileDialog
+            {
+                Filter = "JPEG|*.jpg;*.jpeg|PNG|*.png|Bitmap|*.bmp|TIFF|*.tif;*.tiff",
+                Title = "Сохранить как",
+                FileName = currentImagePath != null ? Path.GetFileName(currentImagePath) : "AlignedImage"
+            };
+
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    imageProcessor.SaveAlignedImage(sfd.FileName);
+                    MessageBox.Show("Сохранено!");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Ошибка: " + ex.Message);
+                }
+            }
+        }
+
         private void BtnAutoAlign_Click(object sender, EventArgs e)
         {
             if (imageProcessor == null)
@@ -175,19 +224,29 @@ namespace ImageAlignmentWFA
                 MessageBox.Show("Сначала загрузите изображение!");
                 return;
             }
+
             try
             {
+                var stopwatch = Stopwatch.StartNew();
                 imageProcessor.AutoAlignImage();
 
+                if (chkAutoCrop.Checked)
+                {
+                    imageProcessor.AutoCrop();
+                }
+
+                stopwatch.Stop();
+
+                lblOperationTime.Text = $"Время выполнения: {stopwatch.ElapsedMilliseconds} мс";
+
                 isUpdating = true;
-                int newAngle = (int)Math.Round(imageProcessor.CurrentAngle);
-                newAngle = NormalizeAngle(newAngle);
+                int newAngle = NormalizeAngle(imageProcessor.CurrentAngle);
                 tbAngle.Value = newAngle;
-                txtAngle.Text = newAngle.ToString();
+                txtAngle.Text = newAngle.ToString("F2");
                 isUpdating = false;
 
                 UpdatePicture();
-                MessageBox.Show("Автовыравнивание выполнено");
+                MessageBox.Show("Автовыравнивание выполнено.");
             }
             catch (Exception ex)
             {
@@ -224,7 +283,6 @@ namespace ImageAlignmentWFA
                     float offsetY = (pbRect.Height - (imgH * ratio)) / 2;
 
                     using var penRect = new Pen(SdColor.Blue, 2);
-
                     float extension = 10.0f;
 
                     for (int i = 0; i < 4; i++)
@@ -275,21 +333,21 @@ namespace ImageAlignmentWFA
 
         private void TxtAngle_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && e.KeyChar != '-' && e.KeyChar != '\b')
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && e.KeyChar != '-' && e.KeyChar != '.')
             {
                 e.Handled = true;
             }
             if (e.KeyChar == (char)Keys.Enter)
             {
-                if (int.TryParse(txtAngle.Text, out int val))
+                if (double.TryParse(txtAngle.Text, out double val))
                 {
                     if (val < tbAngle.Minimum) val = tbAngle.Minimum;
                     if (val > tbAngle.Maximum) val = tbAngle.Maximum;
 
                     isUpdating = true;
-                    val = NormalizeAngle(val);
-                    tbAngle.Value = val;
-                    txtAngle.Text = val.ToString();
+                    int intVal = NormalizeAngle(val);
+                    tbAngle.Value = intVal;
+                    txtAngle.Text = val.ToString("F2");
                     isUpdating = false;
 
                     imageProcessor?.RotateImage(val);

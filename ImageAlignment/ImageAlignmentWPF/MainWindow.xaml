@@ -61,11 +61,19 @@
 
         <!-- Левая панель (панель управления) -->
         <StackPanel Grid.Column="0" Style="{StaticResource PanelBaseStyle}">
+
             <Button x:Name="btnToggleTheme" 
                     Style="{StaticResource FancyButtonStyle}"
                     Content="Тёмная тема" 
                     Width="140"
                     Click="btnToggleTheme_Click"/>
+
+            <!-- Показ полного пути к изображению -->
+            <TextBlock x:Name="txtImagePath" 
+                       Text="Путь к изображению: " 
+                       TextWrapping="Wrap"
+                       Margin="0,10,0,5"
+                       FontWeight="Bold"/>
 
             <Button x:Name="btnLoadImage"
                     Style="{StaticResource FancyButtonStyle}"
@@ -83,15 +91,16 @@
                        Margin="0,10,0,5"
                        FontWeight="Bold"/>
 
-            <StackPanel Orientation="Horizontal">
+            <!-- Поле угла с дробной частью и увеличенной шириной -->
+            <StackPanel Orientation="Horizontal" Width="216">
                 <Slider x:Name="sliderAngle"
                         Minimum="-180"
                         Maximum="180"
-                        Width="100"
+                        Width="156"
                         ValueChanged="sliderAngle_ValueChanged"/>
                 <TextBox x:Name="txtAngle"
-                         Width="30"
-                         Text="0"
+                         Width="38" 
+                         Text="0.00"
                          VerticalContentAlignment="Center"
                          HorizontalContentAlignment="Center"
                          KeyDown="txtAngle_KeyDown"
@@ -127,12 +136,29 @@
                   Checked="chkDiagonals_Checked"
                   Unchecked="chkDiagonals_Unchecked"/>
 
+            <!-- Галочка автообрезки -->
+            <CheckBox x:Name="chkAutoCrop"
+                      Content="Автообрезка"
+                      Foreground="{DynamicResource PanelForegroundBrush}"/>
+            
             <Button x:Name="btnAutoAlign"
                     Style="{StaticResource FancyButtonStyle}"
                     Content="Автовыравнивание"
                     Width="140"
-                    Margin="0,0,0,10"
                     Click="btnAutoAlign_Click"/>
+
+            <!-- Время выполнения операции -->
+            <TextBlock x:Name="txtOperationTime" 
+                       Text=""
+                       Margin="0,5,0,10"
+                       Foreground="Green"/>
+
+            <Button x:Name="btnToggleContour"
+                    Style="{StaticResource FancyButtonStyle}"
+                    Content="Скрыть контур"
+                    Width="140"
+                    Margin="0,10,0,0"
+                    Click="btnToggleContour_Click"/>
 
             <Button x:Name="btnSaveImage"
                     Style="{StaticResource FancyButtonStyle}"
@@ -141,12 +167,13 @@
                     Margin="0,10,0,0"
                     Click="btnSaveImage_Click"/>
 
-            <Button x:Name="btnToggleContour"
+            <Button x:Name="btnSaveAs"
                     Style="{StaticResource FancyButtonStyle}"
-                    Content="Скрыть контур"
+                    Content="Сохранить как"
                     Width="140"
                     Margin="0,10,0,0"
-                    Click="btnToggleContour_Click"/>
+                    Click="btnSaveAs_Click"/>
+
         </StackPanel>
 
         <!-- Правая панель (scroll + canvas) -->
@@ -154,13 +181,13 @@
             <Grid>
                 <Canvas x:Name="canvasImage" Background="Gray" MouseDown="canvasImage_MouseDown">
                     <Image x:Name="imgDisplay" Stretch="Uniform"/>
-                    
+
                     <!-- Линии для направляющих -->
                     <Line x:Name="lineHorizontal" Stroke="Red" StrokeThickness="2" Visibility="Collapsed"/>
                     <Line x:Name="lineVertical" Stroke="Red" StrokeThickness="2" Visibility="Collapsed"/>
                     <Line x:Name="lineDiagonal1" Stroke="Blue" StrokeThickness="2" Visibility="Collapsed"/>
                     <Line x:Name="lineDiagonal2" Stroke="Blue" StrokeThickness="2" Visibility="Collapsed"/>
-                    
+
                     <!-- Элементы для отображения линий контура -->
                     <Line x:Name="lineTop" Stroke="Blue" StrokeThickness="2" Visibility="Collapsed"/>
                     <Line x:Name="lineRight" Stroke="Blue" StrokeThickness="2" Visibility="Collapsed"/>

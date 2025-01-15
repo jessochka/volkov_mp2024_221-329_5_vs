@@ -13,7 +13,7 @@ namespace ImageAlignmentLibrary
     public class ImageProcessor : IDisposable
     {
         public Image<Rgba32>? OriginalImage { get; private set; }
-        public Image<Rgba32>? AlignedImage { get; private set; }
+        public Image<Rgba32>? AlignedImage { get; set; }
         public List<PointF>? DetectedRectanglePoints { get; private set; }
         public double CurrentAngle { get; private set; } = 0.0;
 
@@ -117,6 +117,49 @@ namespace ImageAlignmentLibrary
             OriginalImage?.Dispose();
             AlignedImage?.Dispose();
         }
+
+
+        public void AutoCrop()
+        {
+            // Выровненное изображение есть и определены углы прямоугольника
+            if (AlignedImage == null || DetectedRectanglePoints == null || DetectedRectanglePoints.Count == 0)
+                return;
+
+            // Определение минимальных и максимальных координат по X и Y среди точек контура
+            float minX = float.MaxValue, minY = float.MaxValue;
+            float maxX = float.MinValue, maxY = float.MinValue;
+            foreach (var pt in DetectedRectanglePoints)
+            {
+                if (pt.X < minX) minX = pt.X;
+                if (pt.Y < minY) minY = pt.Y;
+                if (pt.X > maxX) maxX = pt.X;
+                if (pt.Y > maxY) maxY = pt.Y;
+            }
+
+            // Добавление margin для отображения содержимого
+            int margin = 5;
+            int left = Math.Max((int)Math.Floor(minX) - margin, 0);
+            int top = Math.Max((int)Math.Floor(minY) - margin, 0);
+            int right = Math.Min((int)Math.Ceiling(maxX) + margin, AlignedImage.Width - 1);
+            int bottom = Math.Min((int)Math.Ceiling(maxY) + margin, AlignedImage.Height - 1);
+
+            int cropWidth = right - left;
+            int cropHeight = bottom - top;
+
+            if (cropWidth > 0 && cropHeight > 0)
+            {
+                // Корректировка координат точек контура относительно нового изображения
+                for (int i = 0; i < DetectedRectanglePoints.Count; i++)
+                {
+                    var pt = DetectedRectanglePoints[i];
+                    DetectedRectanglePoints[i] = new PointF(pt.X - left, pt.Y - top);
+                }
+
+                // Обрезка
+                AlignedImage.Mutate(ctx => ctx.Crop(new SixLabors.ImageSharp.Rectangle(left, top, cropWidth, cropHeight)));
+            }
+        }
+
 
         #region Внутренние методы
 
