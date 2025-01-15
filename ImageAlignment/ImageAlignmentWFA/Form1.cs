@@ -44,7 +44,10 @@ namespace ImageAlignmentWFA
 
         private void BtnLoadImage_Click(object sender, EventArgs e)
         {
-            using var ofd = new OpenFileDialog { Filter = "Image Files|*.jpg;*.png;*.bmp" };
+            using var ofd = new OpenFileDialog
+            {
+                Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp;*.tif;*.tiff"
+            };
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 imageProcessor?.Dispose();
@@ -147,7 +150,7 @@ namespace ImageAlignmentWFA
             }
             using var sfd = new SaveFileDialog
             {
-                Filter = "JPEG|*.jpg|PNG|*.png|Bitmap|*.bmp",
+                Filter = "JPEG|*.jpg;*.jpeg|PNG|*.png|Bitmap|*.bmp|TIFF|*.tif;*.tiff",
                 Title = "Сохранить изображение",
                 FileName = "AlignedImage"
             };

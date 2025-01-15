@@ -1,96 +1,166 @@
 ﻿<Window x:Class="ImageAlignmentWPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:ImageAlignmentWPF"
-        Title="Выравнивание (WPF)" Height="700" Width="1200">
-    <Grid>
+        Title="Выравнивание (WPF)" 
+        Height="700" Width="1200">
+
+    <Window.Resources>
+
+        <!-- Кисти для тем -->
+        <SolidColorBrush x:Key="WindowBackgroundBrush" Color="White"/>
+        <SolidColorBrush x:Key="WindowForegroundBrush" Color="Black"/>
+        <SolidColorBrush x:Key="PanelBackgroundBrush" Color="#EEEEEE"/>
+        <SolidColorBrush x:Key="PanelForegroundBrush" Color="Black"/>
+
+        <!-- Стиль окна -->
+        <Style x:Key="WindowBaseStyle" TargetType="Window">
+            <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource WindowForegroundBrush}"/>
+        </Style>
+
+        <!-- Стиль StackPanel и т.п. -->
+        <Style x:Key="PanelBaseStyle" TargetType="Panel">
+            <Setter Property="Background" Value="{DynamicResource PanelBackgroundBrush}"/>
+            <Setter Property="Margin" Value="10"/>
+        </Style>
+
+        <!-- Общий стиль для кнопок -->
+        <Style x:Key="FancyButtonStyle" TargetType="Button">
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+
+            <Setter Property="Background" Value="#FF607D8B"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FF455A64"/>
+            <Setter Property="BorderThickness" Value="1"/>
+
+            <!-- Триггеры событий MouseOver, IsPressed и т.д. -->
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FF78909C"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#FF546E7A"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <!-- Общий стиль окна -->
+    <Window.Style>
+        <StaticResource ResourceKey="WindowBaseStyle"/>
+    </Window.Style>
+
+    <Grid Background="{DynamicResource PanelBackgroundBrush}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="220"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Column="0" Margin="10">
+        <!-- Левая панель (панель управления) -->
+        <StackPanel Grid.Column="0" Style="{StaticResource PanelBaseStyle}">
+            <Button x:Name="btnToggleTheme" 
+                    Style="{StaticResource FancyButtonStyle}"
+                    Content="Тёмная тема" 
+                    Width="140"
+                    Click="btnToggleTheme_Click"/>
+
             <Button x:Name="btnLoadImage"
+                    Style="{StaticResource FancyButtonStyle}"
                     Content="Загрузить"
-                    Width="150"
-                    Margin="0,0,0,10"
+                    Width="140"
                     Click="btnLoadImage_Click"/>
 
             <Button x:Name="btnReset"
+                    Style="{StaticResource FancyButtonStyle}"
                     Content="Сбросить"
-                    Width="150"
-                    Margin="0,0,0,10"
+                    Width="140"
                     Click="btnReset_Click"/>
 
-            <TextBlock Text="Угол поворота (°):" Margin="0,10,0,5"/>
+            <TextBlock Text="Угол поворота (°):" 
+                       Margin="0,10,0,5"
+                       FontWeight="Bold"/>
+
             <StackPanel Orientation="Horizontal">
                 <Slider x:Name="sliderAngle"
                         Minimum="-180"
                         Maximum="180"
-                        Width="130"
+                        Width="100"
                         ValueChanged="sliderAngle_ValueChanged"/>
                 <TextBox x:Name="txtAngle"
-                         Width="50"
+                         Width="30"
                          Text="0"
-                         Margin="5,0,0,0"
                          VerticalContentAlignment="Center"
                          HorizontalContentAlignment="Center"
-                         KeyDown="txtAngle_KeyDown"/>
+                         KeyDown="txtAngle_KeyDown"
+                         Margin="5,0,0,0"/>
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" Margin="0,10,0,10">
                 <Button x:Name="btnRotate90"
+                        Style="{StaticResource FancyButtonStyle}"
                         Content="+90°"
-                        Width="75"
+                        Width="60"
+                        Margin="5,0,0,0"
                         Click="btnRotate90_Click"/>
                 <Button x:Name="btnRotateMinus90"
+                        Style="{StaticResource FancyButtonStyle}"
                         Content="-90°"
-                        Width="75"
+                        Width="60"
                         Margin="5,0,0,0"
                         Click="btnRotateMinus90_Click"/>
             </StackPanel>
 
             <CheckBox x:Name="chkGuidelines"
-                      Content="Направляющие линии"
-                      Margin="0,10,0,5"
-                      Checked="chkGuidelines_Checked"
-                      Unchecked="chkGuidelines_Unchecked"/>
-            <CheckBox x:Name="chkDiagonals"
-                      Content="Направляющие диагонали"
-                      Margin="0,5,0,10"
-                      Checked="chkDiagonals_Checked"
-                      Unchecked="chkDiagonals_Unchecked"/>
+                  Content="Направляющие линии"
+                  Margin="0,10,0,5"
+                  Foreground="{DynamicResource PanelForegroundBrush}"
+                  Checked="chkGuidelines_Checked"
+                  Unchecked="chkGuidelines_Unchecked"/>
 
-            <!-- Кнопка Автовыравнивания -->
+            <CheckBox x:Name="chkDiagonals"
+                  Content="Направляющие диагонали"
+                  Margin="0,5,0,10"
+                  Foreground="{DynamicResource PanelForegroundBrush}"
+                  Checked="chkDiagonals_Checked"
+                  Unchecked="chkDiagonals_Unchecked"/>
+
             <Button x:Name="btnAutoAlign"
+                    Style="{StaticResource FancyButtonStyle}"
                     Content="Автовыравнивание"
-                    Width="150"
+                    Width="140"
                     Margin="0,0,0,10"
                     Click="btnAutoAlign_Click"/>
 
             <Button x:Name="btnSaveImage"
+                    Style="{StaticResource FancyButtonStyle}"
                     Content="Сохранить"
-                    Width="150"
+                    Width="140"
                     Margin="0,10,0,0"
                     Click="btnSaveImage_Click"/>
 
-            <!-- Новая кнопка Показать/Скрыть контур -->
             <Button x:Name="btnToggleContour"
+                    Style="{StaticResource FancyButtonStyle}"
                     Content="Скрыть контур"
-                    Width="150"
+                    Width="140"
                     Margin="0,10,0,0"
                     Click="btnToggleContour_Click"/>
         </StackPanel>
 
+        <!-- Правая панель (scroll + canvas) -->
         <ScrollViewer Grid.Column="1" Margin="10">
             <Grid>
                 <Canvas x:Name="canvasImage" Background="Gray" MouseDown="canvasImage_MouseDown">
                     <Image x:Name="imgDisplay" Stretch="Uniform"/>
+                    
                     <!-- Линии для направляющих -->
                     <Line x:Name="lineHorizontal" Stroke="Red" StrokeThickness="2" Visibility="Collapsed"/>
                     <Line x:Name="lineVertical" Stroke="Red" StrokeThickness="2" Visibility="Collapsed"/>
                     <Line x:Name="lineDiagonal1" Stroke="Blue" StrokeThickness="2" Visibility="Collapsed"/>
                     <Line x:Name="lineDiagonal2" Stroke="Blue" StrokeThickness="2" Visibility="Collapsed"/>
+                    
                     <!-- Элементы для отображения линий контура -->
                     <Line x:Name="lineTop" Stroke="Blue" StrokeThickness="2" Visibility="Collapsed"/>
                     <Line x:Name="lineRight" Stroke="Blue" StrokeThickness="2" Visibility="Collapsed"/>

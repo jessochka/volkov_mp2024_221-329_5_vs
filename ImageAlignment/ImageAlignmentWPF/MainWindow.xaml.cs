@@ -3,15 +3,18 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using Microsoft.Win32;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using System.Windows.Media;
 using ImageAlignmentLibrary;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using System.Windows.Shapes;
 using System.Collections.Generic;
-using System.Windows.Media;
+using System.Windows.Shapes;
 using System.Drawing;
+using MediaColor = System.Windows.Media.Color;
+using MediaBrushes = System.Windows.Media.Brushes;
 
 namespace ImageAlignmentWPF
 {
@@ -19,25 +22,47 @@ namespace ImageAlignmentWPF
     {
         private ImageProcessor? imageProcessor;
         private Image<Rgba32>? originalImage;
-
         private bool showContours = true;
         private bool isUpdating = false;
+        private bool isDarkTheme = false; // Флаг текущей темы
 
         public MainWindow()
         {
             InitializeComponent();
         }
 
-        private void btnToggleContour_Click(object sender, RoutedEventArgs e)
+        // Переключение темы -->
+        private void btnToggleTheme_Click(object sender, RoutedEventArgs e)
         {
-            showContours = !showContours;
-            btnToggleContour.Content = showContours ? "Скрыть контур" : "Показать контур";
-            DrawDetectedRectangle();
+            isDarkTheme = !isDarkTheme;
+            if (isDarkTheme)
+            {
+                // Темная тема
+                Resources["WindowBackgroundBrush"] = new SolidColorBrush(MediaColor.FromRgb(40, 40, 40));
+                Resources["WindowForegroundBrush"] = new SolidColorBrush(MediaBrushes.White.Color);
+                Resources["PanelBackgroundBrush"] = new SolidColorBrush(MediaColor.FromRgb(60, 60, 60));
+                Resources["PanelForegroundBrush"] = new SolidColorBrush(MediaBrushes.White.Color);
+
+                btnToggleTheme.Content = "Светлая тема";
+            }
+            else
+            {
+                // Светлая тема
+                Resources["WindowBackgroundBrush"] = new SolidColorBrush(MediaBrushes.White.Color);
+                Resources["WindowForegroundBrush"] = new SolidColorBrush(MediaBrushes.Black.Color);
+                Resources["PanelBackgroundBrush"] = new SolidColorBrush(MediaColor.FromRgb(238, 238, 238));
+                Resources["PanelForegroundBrush"] = new SolidColorBrush(MediaBrushes.Black.Color);
+
+                btnToggleTheme.Content = "Тёмная тема";
+            }
         }
 
         private void btnLoadImage_Click(object sender, RoutedEventArgs e)
         {
-            var ofd = new Microsoft.Win32.OpenFileDialog { Filter = "Image Files|*.jpg;*.png;*.bmp" };
+            var ofd = new OpenFileDialog
+            {
+                Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp;*.tif;*.tiff"
+            };
             if (ofd.ShowDialog() == true)
             {
                 HideAllContours();
@@ -165,9 +190,9 @@ namespace ImageAlignmentWPF
                 MessageBox.Show("Нет изображения для сохранения.");
                 return;
             }
-            var sfd = new Microsoft.Win32.SaveFileDialog
+            var sfd = new SaveFileDialog
             {
-                Filter = "JPEG|*.jpg|PNG|*.png|Bitmap|*.bmp",
+                Filter = "JPEG|*.jpg;*.jpeg|PNG|*.png|Bitmap|*.bmp|TIFF|*.tif;*.tiff",
                 Title = "Сохранить",
                 FileName = "AlignedImage"
             };
@@ -228,7 +253,9 @@ namespace ImageAlignmentWPF
             bmp.EndInit();
             imgDisplay.Source = bmp;
 
-            DrawDetectedRectangle(); // отрисовываем контур
+            canvasImage.UpdateLayout();
+
+            DrawDetectedRectangle();
             if (chkGuidelines.IsChecked == true || chkDiagonals.IsChecked == true)
             {
                 UpdateGuidelines();
@@ -275,7 +302,6 @@ namespace ImageAlignmentWPF
                 HideAllContours();
                 return;
             }
-
             if (imageProcessor?.DetectedRectanglePoints == null || imageProcessor.DetectedRectanglePoints.Count != 4)
             {
                 HideAllContours();
@@ -295,60 +321,52 @@ namespace ImageAlignmentWPF
             double offsetX = (displayWidth - (imgWidth * ratio)) / 2;
             double offsetY = (displayHeight - (imgHeight * ratio)) / 2;
 
-            var points = new List<System.Windows.Point>();
+            var ptsWpf = new List<System.Windows.Point>();
             foreach (var pt in imageProcessor.DetectedRectanglePoints)
             {
                 double x = pt.X * ratio + offsetX;
                 double y = pt.Y * ratio + offsetY;
-                points.Add(new System.Windows.Point(x, y));
+                ptsWpf.Add(new System.Windows.Point(x, y));
             }
 
             double extension = 10.0;
             for (int i = 0; i < 4; i++)
             {
-                int next = (i + 1) % 4;
-                var p1 = points[i];
-                var p2 = points[next];
+                int j = (i + 1) % 4;
+                var pA = ptsWpf[i];
+                var pB = ptsWpf[j];
 
-                double dx = p2.X - p1.X;
-                double dy = p2.Y - p1.Y;
+                double dx = pB.X - pA.X;
+                double dy = pB.Y - pA.Y;
                 double length = Math.Sqrt(dx * dx + dy * dy);
                 if (length == 0) continue;
 
                 double ux = dx / length;
                 double uy = dy / length;
 
-                var extendedP1 = new System.Windows.Point(p1.X - ux * extension, p1.Y - uy * extension);
-                var extendedP2 = new System.Windows.Point(p2.X + ux * extension, p2.Y + uy * extension);
+                var pAext = new System.Windows.Point(pA.X - ux * extension, pA.Y - uy * extension);
+                var pBext = new System.Windows.Point(pB.X + ux * extension, pB.Y + uy * extension);
 
                 switch (i)
                 {
                     case 0:
-                        lineTop.X1 = extendedP1.X;
-                        lineTop.Y1 = extendedP1.Y;
-                        lineTop.X2 = extendedP2.X;
-                        lineTop.Y2 = extendedP2.Y;
+                        lineTop.X1 = pAext.X; lineTop.Y1 = pAext.Y;
+                        lineTop.X2 = pBext.X; lineTop.Y2 = pBext.Y;
                         lineTop.Visibility = Visibility.Visible;
                         break;
                     case 1:
-                        lineRight.X1 = extendedP1.X;
-                        lineRight.Y1 = extendedP1.Y;
-                        lineRight.X2 = extendedP2.X;
-                        lineRight.Y2 = extendedP2.Y;
+                        lineRight.X1 = pAext.X; lineRight.Y1 = pAext.Y;
+                        lineRight.X2 = pBext.X; lineRight.Y2 = pBext.Y;
                         lineRight.Visibility = Visibility.Visible;
                         break;
                     case 2:
-                        lineBottom.X1 = extendedP1.X;
-                        lineBottom.Y1 = extendedP1.Y;
-                        lineBottom.X2 = extendedP2.X;
-                        lineBottom.Y2 = extendedP2.Y;
+                        lineBottom.X1 = pAext.X; lineBottom.Y1 = pAext.Y;
+                        lineBottom.X2 = pBext.X; lineBottom.Y2 = pBext.Y;
                         lineBottom.Visibility = Visibility.Visible;
                         break;
                     case 3:
-                        lineLeft.X1 = extendedP1.X;
-                        lineLeft.Y1 = extendedP1.Y;
-                        lineLeft.X2 = extendedP2.X;
-                        lineLeft.Y2 = extendedP2.Y;
+                        lineLeft.X1 = pAext.X; lineLeft.Y1 = pAext.Y;
+                        lineLeft.X2 = pBext.X; lineLeft.Y2 = pBext.Y;
                         lineLeft.Visibility = Visibility.Visible;
                         break;
                 }
@@ -372,6 +390,7 @@ namespace ImageAlignmentWPF
         {
             lineHorizontal.Visibility = Visibility.Visible;
             lineVertical.Visibility = Visibility.Visible;
+            UpdateGuidelines();
         }
 
         private void chkGuidelines_Unchecked(object sender, RoutedEventArgs e)
@@ -384,12 +403,21 @@ namespace ImageAlignmentWPF
         {
             lineDiagonal1.Visibility = Visibility.Visible;
             lineDiagonal2.Visibility = Visibility.Visible;
+            UpdateGuidelines();
         }
 
         private void chkDiagonals_Unchecked(object sender, RoutedEventArgs e)
         {
             lineDiagonal1.Visibility = Visibility.Collapsed;
             lineDiagonal2.Visibility = Visibility.Collapsed;
+        }
+
+
+        private void btnToggleContour_Click(object sender, RoutedEventArgs e)
+        {
+            showContours = !showContours;
+            btnToggleContour.Content = showContours ? "Скрыть контур" : "Показать контур";
+            DrawDetectedRectangle();
         }
     }
 }
