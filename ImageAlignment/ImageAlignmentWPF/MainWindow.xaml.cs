@@ -23,6 +23,7 @@ namespace ImageAlignmentWPF
     {
         private ImageProcessor? imageProcessor;
         private Image<Rgba32>? originalImage;
+        private Image<Rgba32>? backupAlignedImage;
         private bool showContours = true;
         private bool isUpdating = false;
         private bool isDarkTheme = false; // Флаг текущей темы
@@ -33,6 +34,8 @@ namespace ImageAlignmentWPF
         public MainWindow()
         {
             InitializeComponent();
+            chkAutoCrop.Checked += chkAutoCrop_Checked;
+            chkAutoCrop.Unchecked += chkAutoCrop_Unchecked;
         }
 
         // Переключение темы
@@ -507,6 +510,33 @@ namespace ImageAlignmentWPF
             showContours = !showContours;
             btnToggleContour.Content = showContours ? "Скрыть контур" : "Показать контур";
             DrawDetectedRectangle();
+        }
+
+        private void chkAutoCrop_Checked(object sender, RoutedEventArgs e)
+        {
+            if (imageProcessor != null)
+            {
+                // Сохранение текущего выровненного изображения перед обрезкой
+                backupAlignedImage?.Dispose();
+                backupAlignedImage = imageProcessor.AlignedImage?.Clone();
+
+                imageProcessor.AutoCrop();
+                UpdateImageDisplay();
+            }
+        }
+
+        private void chkAutoCrop_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (imageProcessor != null && backupAlignedImage != null)
+            {
+                // Восстановление сохранённого выровненного изображения без обрезки
+                imageProcessor.AlignedImage?.Dispose();
+                imageProcessor.AlignedImage = backupAlignedImage.Clone();
+
+                // Обновление обнаружения контура для восстановлённого состояния
+                imageProcessor.ReDetectDominantRectangleOnAligned();
+                UpdateImageDisplay();
+            }
         }
     }
 }
